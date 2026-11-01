@@ -1,0 +1,103 @@
+clc;
+close all;
+clear;
+% ==============================================
+% 1D STEADY CONVECTION-DIFFUSION USING FVM
+% CENTRAL DIFFERENCING SCHEME (CDS)
+% ==============================================
+
+% -------- INPUT PARAMETERS --------
+
+d=input("Enter density value: ");
+L=input("Enter length: ");
+y=input("Enter gama value: ");
+u=input("Enter velocity: ");
+
+pa=input("Enter left boundary condition: ");
+pb=input("Enter right boundary condition: ");
+
+n=input("Enter the number of cells: ");
+% -------- GRID GENERATION --------
+
+dx=L/n;
+
+
+% -------- FLUX AND DIFFUSION COEFFICIENTS --------
+
+
+f=d*u;
+% Interior diffusion conductances
+
+de=y/dx;
+dw=y/dx;
+% Boundary diffusion conductances
+% Distance from boundary to cell centre = dx/2
+
+da=y/(dx/2);
+db=da;
+% -------- CDS COEFFICIENTS --------
+% East and west neighbour coefficients
+
+aw=dw+(f/2);
+ae=de-(f/2);
+
+% Boundary cell coefficients
+
+a1=(f/2)+de+da;
+a2=(db-(f/2)+dw);
+
+% -------- MATRIX INITIALIZATION --------
+
+m = zeros(n,n);
+b=zeros(n,1);
+
+% -------- MATRIX ASSEMBLY --------
+
+
+for i = 1:n
+    if i == 1
+        m(i,i) = a1;
+        m(i,i+1) =-ae ;
+        b(i,i)=(da+f)*pa;
+
+    elseif i == n
+        m(i,i) = a2;
+        m(i,i-1) = -aw;
+        b(i,1)=(db-f)*pb;
+
+    else
+        m(i,i) = ae+aw;
+        m(i,i+1) = -ae;
+        m(i,i-1) = -aw;
+    endif
+endfor
+
+% -------- DISPLAY COEFFICIENT MATRIX --------
+disp("Coefficient Matrix:");
+disp(m);
+disp("Right Hand Side:");
+disp(b)
+% -------- SOLVE THE LINEAR SYSTEM --------
+
+phi=(m\b)
+
+disp(" Location cell centers:");
+x=(dx/2:dx:L-(dx/2));
+disp(x);
+% -------- DISPLAY NUMERICAL RESULTS --------
+
+% -------- PLOT RESULTS --------
+figure;
+
+plot(x, phi, 'r-o', 'linewidth', 2);
+xlabel("Location (m)");
+ylabel("Transport property, \phi");
+title("1D Steady Convection-Diffusion using CDS");
+grid on;
+
+
+
+
+
+
+
